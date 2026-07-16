@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -209,6 +209,395 @@
                 gsap.from('#error-message', {duration: 0.3, opacity: 0, y: -10, ease: 'power2.out'});
             }
         });
+    </script>
+    
+</body>
+</html> -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.5/gsap.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap');
+
+        /* --- Theme Variables --- */
+        :root {
+            --primary-accent: #f72585; /* Magenta/Pink from new index CTA */
+            --secondary-accent: #4f79d9; /* Blue accent */
+            --dark-bg-gradient: linear-gradient(135deg, #4B0082 0%, #000080 100%);
+        }
+
+        /* New Theme CSS */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        body {
+            /* FIX 1: Apply the dark purple/blue gradient from index.html */
+            background: var(--dark-bg-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            /* Keep the container white and box-shadowed */
+            background-color: #fff;
+            border-radius: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5); /* Stronger shadow for depth */
+            position: relative;
+            overflow: hidden;
+            width: 768px;
+            max-width: 100%;
+            min-height: 480px;
+        }
+
+        .container p {
+            font-size: 14px;
+            line-height: 20px;
+            letter-spacing: 0.3px;
+            margin: 20px 0;
+        }
+
+        .container span {
+            font-size: 12px;
+        }
+
+        .container a {
+            color: #333;
+            font-size: 13px;
+            text-decoration: none;
+            margin: 15px 0 10px;
+        }
+
+        .container button {
+            /* FIX 2: Apply the primary magenta accent color */
+            background-color: var(--primary-accent);
+            color: #fff;
+            font-size: 12px;
+            padding: 10px 45px;
+            border: 1px solid transparent;
+            border-radius: 8px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            margin-top: 10px;
+            cursor: pointer;
+            transition: transform 80ms ease-in, background-color 0.3s;
+        }
+
+        .container button:hover {
+            /* FIX 3: Darker hover color */
+            background-color: #c91469;
+            opacity: 1; /* Reset opacity hover for new background color */
+        }
+        
+        .container.active .sign-in{
+            transform: translateX(100%);
+        }
+        .container.active .toggle-container{
+            transform: translateX(-100%);
+            border-radius: 0 150px 100px 0;
+        }
+        .container.active .toggle{
+            transform: translateX(50%);
+        }
+        .container.active .toggle-left{
+            transform: translateX(0);
+        }
+        .container.active .toggle-right{
+            transform: translateX(200%);
+        }
+
+        .container button.hidden {
+            background-color: transparent;
+            border-color: #fff;
+        }
+
+        .container form {
+            background-color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding: 0 40px;
+            height: 100%;
+        }
+
+        .container input {
+            background-color: #eee;
+            border: none;
+            margin: 8px 0;
+            padding: 10px 15px;
+            font-size: 13px;
+            border-radius: 8px;
+            width: 100%;
+            outline: none;
+        }
+        
+        .form-container {
+            position: absolute;
+            top: 0;
+            height: 100%;
+            transition: all 0.6s ease-in-out;
+        }
+        
+        .sign-in {
+            left: 0;
+            width: 50%;
+            z-index: 2;
+        }
+
+        h2, h1 {
+            text-align: center;
+            color: #333;
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .input-group {
+            margin-bottom: 0;
+            position: relative;
+            width: 100%;
+        }
+        
+        .input-group label {
+            display: none;
+        }
+        
+        .password-toggle {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #888;
+            font-size: 1.2rem;
+            z-index: 10;
+        }
+
+        .error-message {
+            color: var(--primary-accent); /* Use accent color for error */
+            text-align: center;
+            margin-top: 1rem;
+        }
+        
+        .signup-link a {
+            /* FIX 4: Use primary accent color for links */
+            color: var(--primary-accent);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .nav-buttons {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 2000;
+            display: block;
+        }
+
+        .home-button {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .home-button:hover {
+            background-color: rgba(255, 255, 255, 1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .home-button i {
+            /* FIX 5: Use primary accent color for the home icon */
+            font-size: 1.2rem;
+            color: var(--primary-accent);
+        }
+
+        .toggle-container {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: 50%;
+            height: 100%;
+            overflow: hidden;
+            transition: all 0.6s ease-in-out;
+            border-radius: 150px 0 0 100px;
+            z-index: 1000;
+        }
+
+        .toggle {
+            /* FIX 6: Apply the dark purple/blue gradient to the toggle panel */
+            background: var(--dark-bg-gradient);
+            color: #fff;
+            position: relative;
+            left: -100%;
+            height: 100%;
+            width: 200%;
+            transform: translateX(0);
+            transition: all 0.6s ease-in-out;
+        }
+        
+        .toggle-panel {
+            position: absolute;
+            width: 50%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding: 0 30px;
+            text-align: center;
+            top: 0;
+            transform: translateX(0);
+            transition: all 0.6s ease-in-out;
+        }
+        
+        .toggle-panel h1, .toggle-panel p {
+            color: #fff; /* Ensure text in the dark panel is white */
+        }
+        
+    </style>
+</head>
+<body>
+
+    <div class="nav-buttons">
+        <a href="/" class="home-button">
+            <i class="fas fa-home"></i>
+        </a>
+    </div>
+
+    <div class="container" id="container">
+        
+        <div class="form-container sign-in">
+            <form class="form" id="login-form" action="{{ url_for("login") }}" method="POST">
+                <h1>Login</h1> 
+                
+                <div class="social-icons">
+                    <a href="#" class="icon"><i class="fa-brands fa-google-plus-g"></i></a>
+                    <a href="#" class="icon"><i class="fa-brands fa-facebook-f"></i></a>
+                    <a href="#" class="icon"><i class="fa-brands fa-github"></i></a>
+                    <a href="#" class="icon"><i class="fa-brands fa-linkedin-in"></i></a>
+                </div>
+                
+                <span>or use your email password</span>
+                <br>
+                <div class="input-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" placeholder="Email" required>
+                </div>
+                
+                <div class="input-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Password" required>
+                    <span class="password-toggle" onclick="togglePassword()">👁️</span>
+                </div>
+                <br>
+                
+                <a href="/signup">Don't have an account?</a>
+
+                <button type="submit">Login</button>
+            </form>
+        </div>
+        
+        <div class="toggle-container">
+            <div class="toggle">
+                <div class="toggle-panel toggle-left">
+                    <h1>Welcome Back!</h1>
+                    <p>Enter your personal details to use all of site features</p>
+                    <button class="hidden" id="login">Sign In</button>
+                </div>
+                
+                <div class="toggle-panel toggle-right">
+                    <h1>Hello, Friend!</h1>
+                    <p>
+                        Register with your personal details to use all of site features
+                    </p>
+                    <button class="hidden" id="register">Sign Up</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="error-message" id="error-message"></div>
+
+    </div>
+
+    <script>
+        
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const passwordToggle = document.querySelector('.password-toggle');
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                passwordToggle.textContent = '🔒';
+            } else {
+                passwordInput.type = 'password';
+                passwordToggle.textContent = '👁️';
+            }
+        }
+
+        
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const response = await fetch(e.target.action, {
+                method: 'POST',
+                body: formData
+            });
+            
+            const contentType = response.headers.get("content-type");
+            if (contentType && contentType.indexOf("application/json") !== -1) {
+                const result = await response.json();
+                if (result.success) {
+                    window.location.href = '/dashboard';
+                } else {
+                    document.getElementById('error-message').textContent = result.message;
+                    gsap.from('#error-message', {duration: 0.3, opacity: 0, y: -10, ease: 'power2.out'});
+                }
+            } else {
+                if (response.ok && response.redirected) {
+                     window.location.href = response.url;
+                } else if (!response.ok) {
+                    document.getElementById('error-message').textContent = "Login failed. Please check your credentials.";
+                    gsap.from('#error-message', {duration: 0.3, opacity: 0, y: -10, ease: 'power2.out'});
+                }
+            }
+        });
+        
+        
+        const container = document.getElementById("container");
+        const registerBtn = document.getElementById("register");
+        const loginBtn = document.getElementById("login");
+
+        registerBtn.addEventListener("click", () => {
+            window.location.href = "/signup"; 
+        });
+
+        loginBtn.addEventListener("click", () => {
+            
+            container.classList.remove("active");
+        });
+        
     </script>
     
 </body>

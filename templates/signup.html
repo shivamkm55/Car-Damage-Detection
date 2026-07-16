@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -184,6 +184,240 @@
             } else {
                 document.getElementById('error-message').textContent = result.message;
                 gsap.from('#error-message', {duration: 0.3, opacity: 0, y: -10, ease: 'power2.out'});
+            }
+        });
+    </script>
+</body>
+</html> -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signup - Car Damage Detection</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.5/gsap.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        body {
+            /* Background from the new theme */
+            background-color: #c9d6ff;
+            background: linear-gradient(to right, #e2e2e2, #c9d6ff);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .signup-container {
+            /* Mimicking the .container styling from the new theme */
+            background-color: #fff;
+            border-radius: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.35);
+            padding: 2rem;
+            width: 768px; /* Adjusted to new theme's container width */
+            max-width: 90%;
+            min-height: 480px; /* Adjusted to new theme's container height */
+            position: relative;
+            overflow: hidden;
+            display: flex; /* Using flex to center content if needed */
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        h1 { /* Changed h2 to h1 for theme consistency */
+            text-align: center;
+            color: #333;
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+            font-size: 24px;
+            font-weight: 700;
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 2rem;
+            width: 100%; /* Ensure form-row spans container width */
+            margin-bottom: 1.25rem; /* Add some space below the row */
+        }
+        .form-column {
+            flex: 1;
+        }
+        .input-group {
+            margin-bottom: 0.8rem; /* Reduced margin to fit more fields */
+            position: relative;
+        }
+        label {
+            /* Hide labels as the new theme uses placeholders */
+            display: none;
+        }
+        input {
+            /* Input styling from the new theme */
+            background-color: #eee;
+            border: none;
+            margin: 8px 0; /* Adjust margin for proper spacing */
+            padding: 10px 15px;
+            font-size: 13px;
+            border-radius: 8px;
+            width: 100%;
+            outline: none;
+        }
+        .password-toggle {
+            position: absolute;
+            right: 15px; /* Adjusted for input padding */
+            top: 50%; /* Center vertically within the input */
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #888;
+            font-size: 1.2rem;
+            z-index: 10;
+        }
+
+        .inputBox input[type="submit"] {
+            /* Button styling from the new theme */
+            background-color: #2da0a8;
+            color: #fff;
+            font-size: 12px;
+            padding: 10px 45px;
+            border: 1px solid transparent;
+            border-radius: 8px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            margin-top: 20px; /* Increased margin for better separation */
+            cursor: pointer;
+            transition: transform 80ms ease-in, background-color 0.3s ease;
+            width: auto; /* Allow button to shrink to content if not full width */
+            align-self: center; /* Center the submit button */
+        }
+        
+        .inputBox input[type="submit"]:hover {
+            background-color: #268991; /* Darker green on hover */
+            opacity: 0.9;
+        }
+
+        .error-message {
+            color: red;
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        /* Removed .login-link and its styles as requested */
+
+        .form {
+            width: 100%; /* Ensure form takes full width of container */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0 40px; /* Padding for the form content */
+        }
+    </style>
+</head>
+<body>
+    <div class="signup-container">
+        <h1>Sign Up</h1>
+        <form class="form" id="signup-form" action="{{ url_for("signup") }}" method="POST">
+            <div class="form-row">
+                <div class="form-column">
+                    <div class="input-group">
+                        <label for="fullName">Full Name</label>
+                        <input type="text" id="name" name="name" placeholder="Full Name" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" placeholder="Email" required pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$">
+                    </div>
+                    <div class="input-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" placeholder="Password" required>
+                        <span class="password-toggle" onclick="togglePassword()">👁️</span>
+                    </div>
+                    <div class="input-group">
+                        <label for="phoneNumber">Phone Number</label>
+                        <input type="tel" id="phoneNumber" name="phoneNumber" placeholder="XX00009999" required>
+                    </div>
+                </div>
+                <div class="form-column">
+                    <div class="input-group">
+                        <label for="address">Full Address</label>
+                        <input type="text" id="address" name="address" placeholder="Full Address" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="vehicleId">Vehicle ID</label>
+                        <input type="text" id="vehicleId" name="vehicleId" placeholder="XXNNYY12" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="carBrand">Car Brand</label>
+                        <input type="text" id="carBrand" name="carBrand" placeholder="Car Brand" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="carModel">Car Model</label>
+                        <input type="text" id="carModel" name="carModel" placeholder="Car Model" required>
+                    </div>
+                </div>
+            </div>
+            <div class="inputBox">
+                <input type="submit" value="Sign Up">
+            </div>
+        </form>
+        <div class="error-message" id="error-message"></div>
+        </div>
+
+    <script>
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const passwordToggle = document.querySelector('.password-toggle');
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                passwordToggle.textContent = '🔒';
+            } else {
+                passwordInput.type = 'password';
+                passwordToggle.textContent = '👁️';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            gsap.from('.signup-container', {duration: 1, opacity: 0, y: -50, ease: 'power3.out'});
+            // Adjusted target for GSAP to specifically target inputs and the submit button within the form
+            gsap.from('.form input, .inputBox input[type="submit"]', {duration: 0.5, opacity: 0, y: 20, stagger: 0.1, ease: 'power2.out', delay: 0.5});
+        });
+
+        document.getElementById('signup-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const response = await fetch(e.target.action, {
+                method: 'POST',
+                body: formData
+            });
+            
+            const contentType = response.headers.get("content-type");
+            if (contentType && contentType.indexOf("application/json") !== -1) {
+                const result = await response.json();
+                if (result.success) {
+                    window.location.href = '/dashboard';
+                } else {
+                    document.getElementById('error-message').textContent = result.message;
+                    gsap.from('#error-message', {duration: 0.3, opacity: 0, y: -10, ease: 'power2.out'});
+                }
+            } else {
+                if (response.ok && response.redirected) {
+                     window.location.href = response.url;
+                } else if (!response.ok) {
+                    document.getElementById('error-message').textContent = "Sign up failed. Please try again.";
+                    gsap.from('#error-message', {duration: 0.3, opacity: 0, y: -10, ease: 'power2.out'});
+                }
             }
         });
     </script>

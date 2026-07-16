@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -357,6 +357,520 @@
                 }
             }
         }
+    </script>
+</body>
+</html> -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Damage Detection Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
+
+        /* Keyframes from the new theme */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        /* --- Global Body & Background (Matching Login/Signup Theme) --- */
+        body {
+            /* Background from the login/signup theme */
+            background-color: #c9d6ff;
+            background: linear-gradient(to right, #e2e2e2, #c9d6ff);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center; /* Center horizontally */
+            padding: 20px;
+            overflow-y: scroll;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        body::-webkit-scrollbar {
+            width: 0;
+            height: 0;
+        }
+
+        /* FIX: Main container now acts as the single centered column wrapper */
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            max-width: 500px; /* Max width set for single column */
+            animation: fadeIn 0.8s ease-out;
+            margin-top: 60px; /* Space for fixed nav */
+            margin-bottom: 20px;
+        }
+
+        /* FIX: New name for the main content block, centered on the page */
+        .main-content {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.35);
+            animation: slideIn 0.8s ease-out;
+        }
+
+        /* --- Navigation --- */
+        .nav-buttons {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .nav-buttons .user-profile-wrapper {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+
+        .nav-icon {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            position: relative;
+        }
+
+        .nav-icon:hover {
+            background: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .nav-icon i {
+            color: #2da0a8;
+            font-size: 18px;
+        }
+        
+        .profile-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            padding: 10px;
+            display: none;
+            z-index: 1000;
+            min-width: 150px;
+        }
+
+        .nav-icon.active .profile-dropdown {
+            display: block;
+        }
+
+        .profile-dropdown a {
+            display: block;
+            padding: 8px 15px;
+            color: #2c3e50;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .profile-dropdown a:hover {
+            background-color: #f1f1f1;
+        }
+
+        /* --- Header & Intro --- */
+        .upload-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .upload-header h2 {
+            color: #2d3748;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .upload-header p {
+            color: #718096;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        /* --- Icon Strip (YOLOv8 Analysis Engine) --- */
+        .preview-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .preview-icons {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .preview-icon {
+            width: 60px;
+            height: 60px;
+            background: #f7fafc;
+            border: 2px dashed #e2e8f0;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #a0aec0;
+            font-size: 24px;
+        }
+
+        .preview-icon i {
+            color: #2da0a8;
+        }
+        
+        .preview-text {
+            color: #2d3748;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        /* --- Upload Container --- */
+        .upload-container {
+            border: 2px dashed #d1d5db;
+            border-radius: 16px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s ease;
+            background: #fafafa;
+            margin-bottom: 20px;
+        }
+
+        .upload-container:hover {
+            border-color: #2da0a8;
+            background: #f8f9ff;
+            transform: translateY(-2px);
+        }
+
+        .upload-container.dragover {
+            border-color: #2da0a8;
+            background: #f0f4ff;
+        }
+
+        .upload-container input[type="file"] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .upload-content {
+            pointer-events: none;
+        }
+
+        .upload-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #2da0a8, #5c6bc0);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            color: white;
+            font-size: 32px;
+        }
+
+        .upload-button {
+            background: linear-gradient(135deg, #2da0a8, #5c6bc0);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .upload-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(45, 160, 168, 0.3);
+        }
+
+        .upload-text {
+            color: #718096;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .submit-button {
+            width: 100%;
+            background: linear-gradient(135deg, #2da0a8, #5c6bc0);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .submit-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(45, 160, 168, 0.3);
+        }
+
+        .submit-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* --- Preview/Info Containers --- */
+        #preview-container {
+            display: none;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        #preview-container img {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        #file-info {
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-top: 15px;
+            color: #4a5568;
+            font-size: 14px;
+        }
+        
+        /* Media Queries */
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 30px 25px;
+            }
+            .upload-header h2 {
+                font-size: 24px;
+            }
+            .nav-icon {
+                width: 40px;
+                height: 40px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul class="flash-messages">
+            {% for category, message in messages %}
+                <li class="{{ category }}">{{ message }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+
+    <div class="nav-buttons">
+        <a href="/" class="nav-icon">
+            <i class="fas fa-home"></i>
+        </a>
+        <div class="user-profile-wrapper">
+             <div class="nav-icon user-profile" id="user-profile-icon">
+                <i class="fas fa-user-circle"></i>
+                <div class="profile-dropdown">
+                    <a href="/view_profile">View Profile</a>
+                    <a href="/logout">Logout</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="main-content">
+            <div class="upload-header">
+                <h2>Estimate Repair Cost</h2>
+                <p>Upload an image or video to get instant, high-precision damage analysis and cost estimation.</p>
+            </div>
+
+            <div class="preview-section">
+                <div class="preview-icons">
+                    <div class="preview-icon">
+                        <i class="fas fa-car-crash"></i>
+                    </div>
+                    <div class="preview-icon">
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                    <div class="preview-icon">
+                        <i class="fas fa-search-plus"></i>
+                    </div>
+                </div>
+                <div class="preview-text">YOLOv8 Analysis Engine</div>
+            </div>
+
+            <form action="{{ url_for('dashboard') }}" method="POST" enctype="multipart/form-data">
+                <div class="upload-container" id="upload-container">
+                    <div class="upload-content">
+                        <div class="upload-icon">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                        </div>
+                        <button type="button" class="upload-button">Browse files</button>
+                        <div class="upload-text">
+                            Drop, paste or add a URL<br>
+                            <small>Supported formats: JPG, PNG, MP4</small>
+                        </div>
+                    </div>
+                    <input type="file" id="file-upload" name="file" accept="image/*,video/*" onchange="handleFileUpload(event)" required>
+                </div>
+
+                <div id="preview-container">
+                    <img id="image-preview" src="#" alt="Preview" style="display: none;"/>
+                    <div id="file-info"></div>
+                </div>
+
+                <button type="submit" class="submit-button">
+                    Run Damage Analysis
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Drag and drop functionality
+        const uploadContainer = document.getElementById('upload-container');
+        const fileInput = document.getElementById('file-upload');
+        const userProfileIcon = document.getElementById('user-profile-icon');
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            uploadContainer.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            uploadContainer.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            uploadContainer.addEventListener(eventName, unhighlight, false);
+        });
+
+        function highlight(e) {
+            uploadContainer.classList.add('dragover');
+        }
+
+        function unhighlight(e) {
+            uploadContainer.classList.remove('dragover');
+        }
+
+        uploadContainer.addEventListener('drop', handleDrop, false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            
+            if (files.length > 0) {
+                fileInput.files = files;
+                handleFileUpload({target: fileInput});
+            }
+        }
+        
+        // Trigger file input click when clicking the 'Browse files' button
+        document.querySelector('.upload-button').addEventListener('click', (e) => {
+            e.preventDefault(); 
+            fileInput.click();
+        });
+
+        // File upload handling
+        function handleFileUpload(event) {
+            const fileInput = event.target;
+            const previewContainer = document.getElementById('preview-container');
+            const imagePreview = document.getElementById('image-preview');
+            const fileInfo = document.getElementById('file-info');
+
+            if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                
+                previewContainer.style.display = 'block';
+                previewContainer.style.animation = 'fadeIn 0.5s ease-out';
+                
+                fileInfo.style.display = 'none';
+                imagePreview.style.display = 'none';
+
+                if (file.type.startsWith('image/')) {
+                    
+                    imagePreview.style.display = 'block';
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        imagePreview.src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    fileInfo.style.display = 'block';
+                    let icon = file.type.startsWith('video/') ? 'fas fa-file-video' : 'fas fa-file';
+                    fileInfo.innerHTML = `<i class="${icon}"></i> File selected: <strong>${file.name}</strong>`;
+                }
+            } else {
+                 previewContainer.style.display = 'none';
+            }
+        }
+        
+        // Profile Dropdown Toggle
+        userProfileIcon.addEventListener('click', () => {
+             userProfileIcon.classList.toggle('active');
+        });
+        
+        // Close dropdown if user clicks outside
+        document.addEventListener('click', (e) => {
+            if (!userProfileIcon.contains(e.target) && userProfileIcon.classList.contains('active')) {
+                userProfileIcon.classList.remove('active');
+            }
+        });
     </script>
 </body>
 </html>
