@@ -1,10 +1,17 @@
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
 mysql_credentials = {
-    'host': 'localhost',
-    'user': 'root',
-    'password' : 'newmee',
-    'database' : 'car_damage_detection'
+    'host': os.getenv('DB_HOST', 'localhost'),
+    'user': os.getenv('DB_USER', 'root'),
+    'password': os.getenv('DB_PASSWORD', 'newmee'),
+    'database': os.getenv('DB_NAME', 'car_damage_detection')
 }
-# config.py
+
+REDIS_URL = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
+REDIS_TTL_SECONDS = int(os.getenv('REDIS_TTL_SECONDS', '300'))
 
 # ===============================================================
 # >> CENTRALIZED CAR PRICE DATA & HELPERS <<

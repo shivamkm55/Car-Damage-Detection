@@ -243,14 +243,18 @@
 
 
 
-from flask import Flask, render_template, request, redirect, url_for, session, flash
-from PIL import Image
-from collections import Counter
+import json
 import os
+from collections import Counter
+
 import bcrypt
 import mysql.connector as connector
-from werkzeug.utils import secure_filename
+from flask import Flask, flash, redirect, render_template, request, session, url_for
+from PIL import Image
+from redis import Redis
+from redis.exceptions import RedisError
 from ultralytics import YOLO
+from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
 
 # --- Local Imports ---
@@ -282,6 +286,44 @@ def connect_to_db():
     except connector.Error as e:
         print(f"Database connection error: {e}")
         return None
+
+
+# --- Redis Connection ---
+try:
+    redis_client = Redis.from_url(config.REDIS_URL, decode_responses=True)
+    redis_client.ping()
+    print(f"Redis connected successfully at {config.REDIS_URL}")
+except (RedisError, Exception) as e:
+    print(f"Redis connection failed: {e}")
+    redis_client = None
+
+
+def get_cached_user_car_details(email):
+    if not redis_client:
+        return None
+
+    try:
+        cached_value = redis_client.get(f"user_car:{email}")
+        if cached_value:
+            return json.loads(cached_value)
+    except RedisError as e:
+        print(f"Redis read error: {e}")
+
+    return None
+
+
+def cache_user_car_details(email, user_car_details):
+    if not redis_client or not user_car_details:
+        return
+
+    try:
+        redis_client.setex(
+            f"user_car:{email}",
+            config.REDIS_TTL_SECONDS,
+            json.dumps(user_car_details),
+        )
+    except RedisError as e:
+        print(f"Redis write error: {e}")
 
 # --- Routes (signup, login, etc. remain the same) ---
 @app.route('/')
@@ -454,13 +496,21 @@ def dashboard():
 
 # --- Helper Functions ---
 def get_user_car_details(email):
+    cached_user_car = get_cached_user_car_details(email)
+    if cached_user_car is not None:
+        return cached_user_car
+
     connection = connect_to_db()
     if not connection:
         return None
+
     try:
         with connection.cursor(dictionary=True) as cursor:
             cursor.execute("SELECT car_brand, model FROM user_info WHERE email = %s", (email,))
-            return cursor.fetchone()
+            user_car_details = cursor.fetchone()
+            if user_car_details:
+                cache_user_car_details(email, user_car_details)
+            return user_car_details
     except connector.Error as e:
         print(f"DB error fetching user car: {e}")
         return None
