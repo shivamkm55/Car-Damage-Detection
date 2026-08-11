@@ -12,7 +12,8 @@ mysql_credentials = {
 
 REDIS_URL = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
 REDIS_TTL_SECONDS = int(os.getenv('REDIS_TTL_SECONDS', '300'))
-
+CELERY_BROKER_URL = os.getenv('CELERY_BROKER_URL', REDIS_URL)
+CELERY_RESULT_BACKEND = os.getenv('CELERY_RESULT_BACKEND', REDIS_URL)
 # ===============================================================
 # >> CENTRALIZED CAR PRICE DATA & HELPERS <<
 # ===============================================================

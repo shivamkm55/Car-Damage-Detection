@@ -1,0 +1,5 @@
+Redis: Memory-fast cache so you don't keep asking the slow database for the same info over and over.
+
+Gunicorn: Multi-worker manager so dozens/hundreds of people can visit your site simultaneously without getting queued behind each other.
+
+Celery: Offloader so heavy jobs (like video processing or ML model runs) don't freeze the web page while running.
